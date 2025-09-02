@@ -4,6 +4,7 @@ import '../styles/auth.css';
 import '../styles/books.css';
 import '../styles/layout.css';
 import '../styles/profile.css';
+import '../styles/favorites.css';
 import { AuthProvider } from '../store';
 import Layout from '../components/layout/Layout';
 

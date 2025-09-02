@@ -1,0 +1,118 @@
+/* Favorites Button Styling */
+
+/* Card favorite button */
+.book-card-image {
+  position: relative;
+}
+
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.favorite-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.favorite-button svg {
+  width: 20px;
+  height: 20px;
+  color: #ff4d4f;
+  transition: all 0.3s ease;
+}
+
+/* Special styling for favorite button in favorites tab */
+.favorite-button.in-favorites-tab {
+  width: auto;
+  padding: 0 12px;
+  border-radius: 18px;
+  background-color: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.5);
+}
+
+.favorite-button.in-favorites-tab .remove-label {
+  font-size: 12px;
+  margin-right: 4px;
+  color: #ff4d4f;
+}
+
+.favorite-button.is-favorite {
+  background-color: rgba(255, 235, 235, 0.9);
+}
+
+.favorite-button.is-favorite svg {
+  fill: #ff4d4f;
+}
+
+.favorite-button.processing {
+  opacity: 0.7;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.processing-indicator {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 77, 79, 0.3);
+  border-top: 2px solid #ff4d4f;
+  animation: spinner 0.6s linear infinite;
+  bottom: -5px;
+  right: -5px;
+}
+
+@keyframes spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Details page favorite button */
+.favorite-action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.favorite-action-button svg {
+  width: 20px;
+  height: 20px;
+  color: #ff4d4f;
+}
+
+.favorite-action-button.is-favorite {
+  background-color: #fff0f0;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+}
+
+.favorite-action-button.is-favorite svg {
+  fill: #ff4d4f;
+}
+
+/* Animation for favoriting */
+@keyframes heart-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.favorite-button:active svg,
+.favorite-action-button:active svg {
+  animation: heart-pulse 0.3s ease-in-out;
+}

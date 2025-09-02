@@ -58,13 +58,17 @@ const UserFavorites: React.FC<UserFavoritesProps> = ({ userId }) => {
       <div className="favorites-grid">
         {favorites.map((book) => (
           <div key={book.id} className="favorite-book-wrapper">
-            <BookCard book={book} />
-            <button 
-              className="remove-favorite-button"
-              onClick={() => handleRemoveFromFavorites(book.id)}
-            >
-              Remove from favorites
-            </button>
+            <BookCard 
+              book={book} 
+              isFavorite={true}
+              onFavoriteToggle={(bookId, isFavorite) => {
+                // When toggling off (unfavoriting), remove from the list
+                if (!isFavorite) {
+                  handleRemoveFromFavorites(bookId);
+                }
+              }}
+              inFavoritesTab={true}
+            />
           </div>
         ))}
       </div>

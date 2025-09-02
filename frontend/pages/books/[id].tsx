@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import bookService, { Book } from '../../services/bookService';
 import reviewService, { Review, PaginatedReviews } from '../../services/reviewService';
+import userService from '../../services/userService';
 import { useAuth } from '../../store/auth-context';
 
 // Components
@@ -27,6 +28,9 @@ const BookDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [ratingLoading, setRatingLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [favoritesLoading, setFavoritesLoading] = useState<boolean>(false);
+  const [favoriteProcessing, setFavoriteProcessing] = useState<boolean>(false);
   
   // Get book ID from router
   const router = useRouter();
@@ -78,6 +82,20 @@ const BookDetailsPage: React.FC = () => {
           } finally {
             setRatingLoading(false);
           }
+          
+          // Check if book is favorite for authenticated user
+          if (isAuthenticated && user) {
+            try {
+              setFavoritesLoading(true);
+              const favoritesResponse = await userService.getFavorites(user.id);
+              const favoriteIds = favoritesResponse.favorites.map((book: Book) => book.id);
+              setIsFavorite(favoriteIds.includes(id));
+            } catch (favErr) {
+              console.error('Error checking favorite status:', favErr);
+            } finally {
+              setFavoritesLoading(false);
+            }
+          }
         } catch (err: any) {
           console.error('Error fetching book details:', err);
           
@@ -94,7 +112,7 @@ const BookDetailsPage: React.FC = () => {
       
       fetchBookDetails();
     }
-  }, [id]);
+  }, [id, isAuthenticated, user]);
   
   // Fetch reviews when ID is available or pagination/sorting changes
   useEffect(() => {
@@ -130,6 +148,29 @@ const BookDetailsPage: React.FC = () => {
   const handleSortChange = (newSortBy: string, newSortOrder: string) => {
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
+  };
+  
+  // Handle toggling favorite status
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated || favoriteProcessing || !id || typeof id !== 'string') return;
+    
+    try {
+      setFavoriteProcessing(true);
+      
+      if (isFavorite) {
+        await userService.removeFavorite(id);
+      } else {
+        await userService.addFavorite(id);
+      }
+      
+      // Update local state
+      setIsFavorite(!isFavorite);
+      
+    } catch (error) {
+      console.error('Failed to toggle favorite status:', error);
+    } finally {
+      setFavoriteProcessing(false);
+    }
   };
 
   // Handle review submission (create or update)
@@ -251,6 +292,8 @@ const BookDetailsPage: React.FC = () => {
       setDeletingReview(false);
     }
   };
+  
+
   
   // Render loading state
   if (loading) {
@@ -378,9 +421,19 @@ const BookDetailsPage: React.FC = () => {
                 Write a Review
               </button>
             ) : null}
-            <button className="action-button secondary-button">
-              Add to Favorites
-            </button>
+            {isAuthenticated && (
+              <button 
+                className={`action-button favorite-action-button ${isFavorite ? 'is-favorite' : 'secondary-button'}`}
+                onClick={handleToggleFavorite}
+                disabled={favoriteProcessing}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={isFavorite ? "currentColor" : "none"} 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="favorite-icon">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+              </button>
+            )}
           </div>
         </div>
       </div>

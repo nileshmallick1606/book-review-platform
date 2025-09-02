@@ -86,11 +86,9 @@ const getBookById = async (req, res, next) => {
     const response = { book };
     
     // Optionally include reviews if requested
-    // This would normally load related reviews from the reviews model
-    // We'll add a placeholder for now since that's part of another user story
     if (includeReviews) {
-      response.reviews = [];
-      response.message = "Reviews functionality will be implemented in US 2.2";
+      const reviewModel = require('../models/review.model');
+      response.reviews = await reviewModel.findByBookId(bookId);
     }
     
     res.status(200).json(response);

@@ -44,8 +44,19 @@ app.use(errorMiddleware);
 
 // Start server
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  // Initialize book ratings from reviews
+  const bookModel = require('./models/book.model');
+  
+  app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+    
+    // Update all book ratings on server start
+    try {
+      await bookModel.updateAllBookRatings();
+      console.log('All book ratings updated from reviews data');
+    } catch (error) {
+      console.error('Failed to update book ratings:', error);
+    }
   });
 }
 

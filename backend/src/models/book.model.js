@@ -77,11 +77,48 @@ class BookModel extends BaseModel {
     });
   }
 
-  // Update book ratings
+  // Update book ratings based on actual reviews data
   async updateBookRatings(bookId) {
-    // This would be implemented in a real system to recalculate
-    // average rating and review count when reviews change
+    const reviewModel = require('./review.model');
+    const bookReviews = await reviewModel.findByBookId(bookId);
+    
+    // Get the book
+    const book = await this.findById(bookId);
+    if (!book) return false;
+    
+    // Calculate average rating and review count
+    const reviewCount = bookReviews.length;
+    const averageRating = reviewCount > 0 
+      ? bookReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount
+      : 0;
+    
+    // Round average rating to 1 decimal place
+    const roundedRating = Math.round(averageRating * 10) / 10;
+    
+    // Update book with calculated values
+    await this.update(bookId, {
+      reviewCount,
+      averageRating: roundedRating
+    });
+    
     return true;
+  }
+
+  // Update ratings for all books
+  async updateAllBookRatings() {
+    try {
+      const books = await this.findAll();
+      
+      // Process each book
+      for (const book of books) {
+        await this.updateBookRatings(book.id);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating all book ratings:', error);
+      return false;
+    }
   }
 }
 

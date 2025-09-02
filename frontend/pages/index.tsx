@@ -7,14 +7,14 @@ const Home: NextPage = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
-    <div>
+    <>
       <Head>
         <title>BookReview Platform</title>
         <meta name="description" content="A platform for book reviews and recommendations" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
+      <main className="container">
         <h1>Welcome to BookReview Platform</h1>
         <p>Discover books, share reviews, and get personalized recommendations.</p>
         
@@ -23,8 +23,10 @@ const Home: NextPage = () => {
             <div>
               <p>Welcome back, {user?.name}!</p>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <Link href="/auth/profile" style={{ padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', borderRadius: '4px' }}>
-                  View Profile
+                <Link href="/auth/profile">
+                  <span style={{ padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', borderRadius: '4px', cursor: 'pointer', display: 'inline-block' }}>
+                    View Profile
+                  </span>
                 </Link>
                 <button
                   onClick={logout}
@@ -36,17 +38,21 @@ const Home: NextPage = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <Link href="/auth/login" style={{ padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', borderRadius: '4px' }}>
-                Login
+              <Link href="/auth/login">
+                <span style={{ padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', borderRadius: '4px', cursor: 'pointer', display: 'inline-block' }}>
+                  Login
+                </span>
               </Link>
-              <Link href="/auth/register" style={{ padding: '0.5rem 1rem', backgroundColor: '#009688', color: 'white', borderRadius: '4px' }}>
-                Register
+              <Link href="/auth/register">
+                <span style={{ padding: '0.5rem 1rem', backgroundColor: '#009688', color: 'white', borderRadius: '4px', cursor: 'pointer', display: 'inline-block' }}>
+                  Register
+                </span>
               </Link>
             </div>
           )}
         </div>
       </main>
-    </div>
+    </>
   );
 };
 

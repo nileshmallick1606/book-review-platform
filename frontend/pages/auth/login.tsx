@@ -31,7 +31,7 @@ const LoginPage: NextPage = () => {
           <div className="auth-links">
             <p>
               Don't have an account?{' '}
-              <Link href="/auth/register">
+              <Link href="/auth/register" className="auth-link">
                 Register
               </Link>
             </p>

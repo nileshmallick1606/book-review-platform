@@ -15,12 +15,12 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 | Phase | Completion % | Status | Notes |
 |-------|-------------|--------|-------|
 | Phase 1: Project Setup and Foundation | 100% | Completed | US 1.1 and US 1.2 completed |
-| Phase 2: Core Features | 0% | Not Started |  |
+| Phase 2: Core Features | 33.3% | In Progress | US 2.1 completed (Book Management) |
 | Phase 3: Advanced Features | 0% | Not Started |  |
 | Phase 4: Testing and Quality Assurance | 0% | Not Started |  |
 | Phase 5: Deployment and Infrastructure | 0% | Not Started |  |
 | Phase 6: Launch Preparation and Final Review | 0% | Not Started |  |
-| **Overall Project** | **16.7%** | **In Progress** | Project initialization and authentication completed |
+| **Overall Project** | **22.2%** | **In Progress** | Project initialization, authentication, and book management completed |
 
 ---
 
@@ -78,17 +78,17 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 
 | ID | Task | Assignee | Status | Est. Hours | Actual Hours | Completion % | Notes |
 |----|------|----------|--------|------------|--------------|--------------|-------|
-| 2.1.1 | Create Book Data Model |  | Not Started | 4 |  | 0% |  |
-| 2.1.2 | Implement Book Listing API |  | Not Started | 4 |  | 0% |  |
-| 2.1.3 | Implement Book Search API |  | Not Started | 3 |  | 0% |  |
-| 2.1.4 | Implement Book Details API |  | Not Started | 2 |  | 0% |  |
-| 2.1.5 | Create Book Listing Page |  | Not Started | 5 |  | 0% |  |
-| 2.1.6 | Implement Book Search Component |  | Not Started | 4 |  | 0% |  |
-| 2.1.7 | Create Book Details Page |  | Not Started | 5 |  | 0% |  |
-| 2.1.8 | Implement API Service for Books |  | Not Started | 2 |  | 0% |  |
-| 2.1.9 | Test Book APIs |  | Not Started | 3 |  | 0% |  |
-| 2.1.10 | Test Frontend Book Components |  | Not Started | 3 |  | 0% |  |
-| **US 2.1** | **Total** |  | **Not Started** | **35** | **0** | **0%** |  |
+| 2.1.1 | Create Book Data Model | Senior Engineer | Completed | 4 | 4 | 100% | Created book model and implemented seed data with 15 sample books |
+| 2.1.2 | Implement Book Listing API | Senior Engineer | Completed | 4 | 4 | 100% | Added pagination, sorting options, and enhanced response format |
+| 2.1.3 | Implement Book Search API | Senior Engineer | Completed | 3 | 3 | 100% | Implemented search with filters for genre, year, and rating |
+| 2.1.4 | Implement Book Details API | Senior Engineer | Completed | 2 | 2 | 100% | Added support for optional related data inclusion |
+| 2.1.5 | Create Book Listing Page | Senior Engineer | Completed | 5 | 5 | 100% | Implemented responsive book listing with grid/list views |
+| 2.1.6 | Implement Book Search Component | Senior Engineer | Completed | 4 | 4 | 100% | Created search with debouncing and advanced filtering options |
+| 2.1.7 | Create Book Details Page | Senior Engineer | Completed | 5 | 5 | 100% | Created detailed book view with metadata and responsive design |
+| 2.1.8 | Implement API Service for Books | Senior Engineer | Completed | 2 | 2 | 100% | Created TypeScript service with proper typing and error handling |
+| 2.1.9 | Test Book APIs | Senior Engineer | Completed | 3 | 3 | 100% | Wrote comprehensive tests for book model and controllers |
+| 2.1.10 | Test Frontend Book Components | Senior Engineer | Completed | 3 | 3 | 100% | Created unit tests for book components and pages |
+| **US 2.1** | **Total** | **Senior Engineer** | **Completed** | **35** | **35** | **100%** | Successfully implemented book management functionality |
 
 ### US 2.2: Review System
 
@@ -125,7 +125,8 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 | **US 2.3** | **Total** |  | **Not Started** | **37** | **0** | **0%** |  |
 
 **Phase 2 Total Hours**: 108  
-**Phase 2 Completion**: 0%
+**Phase 2 Actual Hours**: 35  
+**Phase 2 Completion**: 32.4%
 
 ---
 

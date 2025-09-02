@@ -14,7 +14,8 @@ class UserModel extends BaseModel {
     // Create user with hashed password
     return super.create({
       ...data,
-      password: hashedPassword
+      password: hashedPassword,
+      favorites: [] // Initialize empty favorites array
     });
   }
 
@@ -40,6 +41,38 @@ class UserModel extends BaseModel {
   async updatePassword(id, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     return super.update(id, { password: hashedPassword });
+  }
+  
+  // Add a book to user's favorites
+  async addFavoriteBook(userId, bookId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    // Initialize favorites if it doesn't exist
+    if (!user.favorites) user.favorites = [];
+
+    // Check if book is already in favorites
+    if (!user.favorites.includes(bookId)) {
+      user.favorites.push(bookId);
+      return await this.update(userId, { favorites: user.favorites });
+    }
+    return user;
+  }
+
+  // Remove a book from user's favorites
+  async removeFavoriteBook(userId, bookId) {
+    const user = await this.findById(userId);
+    if (!user || !user.favorites) return null;
+
+    // Remove bookId from favorites
+    user.favorites = user.favorites.filter(id => id !== bookId);
+    return await this.update(userId, { favorites: user.favorites });
+  }
+
+  // Get user's favorite books
+  async getFavoriteBooks(userId) {
+    const user = await this.findById(userId);
+    return user?.favorites || [];
   }
 }
 

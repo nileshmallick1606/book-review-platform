@@ -91,6 +91,56 @@ class ReviewModel extends BaseModel {
     );
   }
 
+  // Find reviews by user ID with book information
+  async findByUserIdWithBookInfo(userId, options = {}) {
+    // If countOnly is true, just return the count
+    if (options.countOnly) {
+      const reviews = await this.findAll();
+      const userReviews = reviews.filter(review => review.userId === userId);
+      return { totalItems: userReviews.length };
+    }
+    
+    const { page = 1, limit = 10, sortBy = 'timestamp', sortOrder = 'desc' } = options;
+    let reviews = await this.findAll();
+    
+    // Filter by user ID
+    reviews = reviews.filter(review => review.userId === userId);
+    
+    // Get book model to fetch book details
+    const bookModel = require('./book.model');
+    
+    // Fetch book information for each review
+    const reviewsWithBookInfo = await Promise.all(
+      reviews.map(async review => {
+        const book = await bookModel.findById(review.bookId);
+        return {
+          ...review,
+          book: book ? {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            coverImage: book.coverImage
+          } : null
+        };
+      })
+    );
+    
+    // Apply sorting
+    let sortedReviews = this.sortReviews(reviewsWithBookInfo, sortBy, sortOrder);
+    
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    
+    return {
+      reviews: sortedReviews.slice(startIndex, endIndex),
+      totalItems: reviews.length,
+      page,
+      limit,
+      totalPages: Math.ceil(reviews.length / limit)
+    };
+  }
+
   // Helper method to sort reviews
   sortReviews(reviews, sortBy = 'timestamp', sortOrder = 'desc') {
     const validSortFields = ['timestamp', 'rating'];

@@ -166,7 +166,7 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
-// Get reviews by user
+// Get reviews by user with book details
 const getUserReviews = async (req, res, next) => {
   try {
     const userId = req.params.id;
@@ -180,7 +180,8 @@ const getUserReviews = async (req, res, next) => {
       sortOrder: sortOrder || 'desc'
     };
     
-    const result = await reviewModel.findByUserId(userId, options);
+    // Use the enhanced method that includes book information
+    const result = await reviewModel.findByUserIdWithBookInfo(userId, options);
     
     res.status(200).json(result);
   } catch (error) {

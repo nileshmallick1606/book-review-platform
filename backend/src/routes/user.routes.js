@@ -6,11 +6,12 @@ const reviewController = require('../controllers/review.controller');
 
 // Public routes
 router.get('/:id', userController.getUserProfile);
+router.get('/:id/favorites', userController.getFavoriteBooks);
+router.get('/:id/reviews', reviewController.getUserReviews);
 
 // Protected routes
 router.use(authMiddleware.authenticate);
 router.put('/:id', userController.updateUserProfile);
-router.get('/:id/reviews', reviewController.getUserReviews);
 router.post('/favorites/:bookId', userController.addFavoriteBook);
 router.delete('/favorites/:bookId', userController.removeFavoriteBook);
 

@@ -2,6 +2,10 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  bio?: string;
+  location?: string;
+  favorites?: string[];
+  reviewCount?: number;
 }
 
 export interface Book {
@@ -23,4 +27,10 @@ export interface Review {
   text: string;
   rating: number;
   timestamp: string;
+  book?: {
+    id: string;
+    title: string;
+    author: string;
+    coverImage: string;
+  };
 }

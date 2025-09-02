@@ -5,21 +5,35 @@ interface StarRatingProps {
   maxRating?: number;
   onChange?: (rating: number) => void;
   readOnly?: boolean;
+  showText?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  precision?: 'full' | 'half' | 'quarter';
 }
 
 /**
- * Star rating component that can be used both for display and selection
+ * Enhanced Star rating component that can handle decimal ratings
+ * and displays half/quarter stars for more precise visual representation
  */
 const StarRating: React.FC<StarRatingProps> = ({ 
   rating, 
   maxRating = 5, 
   onChange, 
-  readOnly = false 
+  readOnly = false,
+  showText = false,
+  size = 'medium',
+  precision = 'half'
 }) => {
   const [hoverRating, setHoverRating] = React.useState(0);
   
   // Create an array from 1 to maxRating
   const stars = Array.from({ length: maxRating }, (_, i) => i + 1);
+  
+  // Map size to CSS class
+  const sizeClass = {
+    small: 'star-small',
+    medium: 'star-medium',
+    large: 'star-large'
+  }[size];
   
   const handleClick = (value: number) => {
     if (!readOnly && onChange) {
@@ -27,25 +41,57 @@ const StarRating: React.FC<StarRatingProps> = ({
     }
   };
   
+  // Determine what star icon to show based on the rating value and position
+  const getStarIcon = (position: number, currentRating: number) => {
+    const difference = currentRating - position + 1;
+    
+    // Full star
+    if (difference >= 1) {
+      return '★';
+    }
+    
+    // Different partial stars based on precision
+    if (precision === 'half' && difference >= 0.5) {
+      return '½'; // Using half-star Unicode or could use a custom icon
+    }
+    
+    if (precision === 'quarter') {
+      if (difference >= 0.75) {
+        return '¾'; // Using fraction Unicode or could use a custom icon
+      }
+      if (difference >= 0.5) {
+        return '½';
+      }
+      if (difference >= 0.25) {
+        return '¼';
+      }
+    }
+    
+    // Empty star
+    return '☆';
+  };
+  
   return (
-    <div className="star-rating">
-      {stars.map((star) => (
+    <div className={`star-rating ${sizeClass}`} role="img" aria-label={`Rating: ${rating} out of ${maxRating} stars`}>
+      {stars.map((position) => (
         <span
-          key={star}
+          key={position}
           className={`star ${
-            star <= (hoverRating || rating) ? 'filled' : 'empty'
-          }`}
-          onClick={() => handleClick(star)}
-          onMouseEnter={() => !readOnly && setHoverRating(star)}
+            position <= Math.ceil(hoverRating || rating) ? 'filled' : 'empty'
+          } ${position > Math.floor(hoverRating || rating) && 
+              position <= Math.ceil(hoverRating || rating) ? 'partial' : ''}`}
+          onClick={() => handleClick(position)}
+          onMouseEnter={() => !readOnly && setHoverRating(position)}
           onMouseLeave={() => !readOnly && setHoverRating(0)}
           style={{ cursor: readOnly ? 'default' : 'pointer' }}
+          title={`${position} ${position === 1 ? 'star' : 'stars'}`}
         >
-          {/* Using Unicode star character */}
-          {star <= (hoverRating || rating) ? '★' : '☆'}
+          {/* Show appropriate star based on rating */}
+          {getStarIcon(position, hoverRating || rating)}
         </span>
       ))}
-      {!readOnly && (
-        <span className="rating-number">{hoverRating || rating || 0}/{maxRating}</span>
+      {(showText || !readOnly) && (
+        <span className="rating-number" aria-hidden="true">{(hoverRating || rating || 0).toFixed(1)}/{maxRating}</span>
       )}
     </div>
   );

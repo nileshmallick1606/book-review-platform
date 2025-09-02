@@ -12,6 +12,7 @@ import ReviewList from '../../components/review/ReviewList';
 import ReviewForm from '../../components/review/ReviewForm';
 import DeleteReviewModal from '../../components/review/DeleteReviewModal';
 import StarRating from '../../components/ui/StarRating';
+import RatingSummary from '../../components/ui/RatingSummary';
 
 // Default placeholder book cover
 const PLACEHOLDER_COVER = 'https://via.placeholder.com/300x450?text=No+Cover';
@@ -22,7 +23,9 @@ const PLACEHOLDER_COVER = 'https://via.placeholder.com/300x450?text=No+Cover';
 const BookDetailsPage: React.FC = () => {
   // State for book data
   const [book, setBook] = useState<Book | null>(null);
+  const [ratingDetails, setRatingDetails] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [ratingLoading, setRatingLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
   // Get book ID from router
@@ -63,6 +66,18 @@ const BookDetailsPage: React.FC = () => {
           
           const response = await bookService.getBookById(id, true);
           setBook(response.book);
+          
+          // Fetch rating details
+          try {
+            setRatingLoading(true);
+            const ratingResponse = await bookService.getBookRatingDetails(id);
+            setRatingDetails(ratingResponse);
+          } catch (ratingErr) {
+            console.error('Error fetching rating details:', ratingErr);
+            // Non-critical error, so we don't set the main error state
+          } finally {
+            setRatingLoading(false);
+          }
         } catch (err: any) {
           console.error('Error fetching book details:', err);
           
@@ -126,25 +141,59 @@ const BookDetailsPage: React.FC = () => {
       
       if (reviewToEdit) {
         // Update existing review
-        await reviewService.updateReview(reviewToEdit.id, {
+        const updateResponse = await reviewService.updateReview(reviewToEdit.id, {
           text: reviewData.text,
           rating: reviewData.rating
         });
+        
         setReviewToEdit(null);
+        
+        // Immediately update book rating if available in the response
+        if (updateResponse.bookRating && book) {
+          setBook({
+            ...book,
+            averageRating: updateResponse.bookRating.averageRating,
+            reviewCount: updateResponse.bookRating.reviewCount
+          });
+          
+          // Also update rating details if they exist
+          if (ratingDetails) {
+            setRatingDetails({
+              ...ratingDetails,
+              averageRating: updateResponse.bookRating.averageRating,
+              reviewCount: updateResponse.bookRating.reviewCount
+            });
+          }
+        }
       } else {
         // Create new review
-        await reviewService.createReview(id, {
+        const createResponse = await reviewService.createReview(id, {
           text: reviewData.text,
           rating: reviewData.rating
         });
+        
+        // Immediately update book rating if available in the response
+        if (createResponse.bookRating && book) {
+          setBook({
+            ...book,
+            averageRating: createResponse.bookRating.averageRating,
+            reviewCount: createResponse.bookRating.reviewCount
+          });
+          
+          // Also update rating details if they exist
+          if (ratingDetails) {
+            setRatingDetails({
+              ...ratingDetails,
+              averageRating: createResponse.bookRating.averageRating,
+              reviewCount: createResponse.bookRating.reviewCount
+            });
+          }
+        }
       }
       
-      // Refresh reviews and book data
+      // Refresh reviews
       const reviewsResult = await reviewService.getBookReviews(id, currentPage, 10, sortBy, sortOrder);
       setReviewsData(reviewsResult);
-      
-      const bookResponse = await bookService.getBookById(id, true);
-      setBook(bookResponse.book);
       
     } catch (err) {
       console.error('Failed to submit review:', err);
@@ -170,14 +219,29 @@ const BookDetailsPage: React.FC = () => {
     
     try {
       setDeletingReview(true);
-      await reviewService.deleteReview(reviewToDelete);
+      const deleteResponse = await reviewService.deleteReview(reviewToDelete);
       
-      // Refresh reviews and book data
+      // Immediately update book rating if available in the response
+      if (deleteResponse.bookRating && book) {
+        setBook({
+          ...book,
+          averageRating: deleteResponse.bookRating.averageRating,
+          reviewCount: deleteResponse.bookRating.reviewCount
+        });
+        
+        // Also update rating details if they exist
+        if (ratingDetails) {
+          setRatingDetails({
+            ...ratingDetails,
+            averageRating: deleteResponse.bookRating.averageRating,
+            reviewCount: deleteResponse.bookRating.reviewCount
+          });
+        }
+      }
+      
+      // Refresh reviews
       const reviewsResult = await reviewService.getBookReviews(id, currentPage, 10, sortBy, sortOrder);
       setReviewsData(reviewsResult);
-      
-      const bookResponse = await bookService.getBookById(id, true);
-      setBook(bookResponse.book);
       
       setIsDeleteModalOpen(false);
       setReviewToDelete(null);
@@ -259,10 +323,29 @@ const BookDetailsPage: React.FC = () => {
           <h1 className="book-title">{book.title}</h1>
           <h2 className="book-author">by {book.author}</h2>
           
-          <div className="book-rating">
-            <StarRating rating={book.averageRating} readOnly />
-            <span className="rating-value">{book.averageRating.toFixed(1)}</span>
-            <span className="review-count">({book.reviewCount} reviews)</span>
+          <div className="book-rating-section">
+            {ratingLoading ? (
+              <div className="rating-loading">Loading ratings...</div>
+            ) : ratingDetails ? (
+              <RatingSummary 
+                averageRating={ratingDetails.averageRating} 
+                reviewCount={ratingDetails.reviewCount}
+                size="large"
+                distribution={ratingDetails.distribution}
+              />
+            ) : (
+              <div className="book-rating">
+                <StarRating rating={book.averageRating} readOnly size="medium" precision="half" />
+                <span className="rating-value">{book.averageRating.toFixed(1)}</span>
+                <span className="review-count">({book.reviewCount} {book.reviewCount === 1 ? 'review' : 'reviews'})</span>
+              </div>
+            )}
+            
+            {ratingDetails && ratingDetails.positivePercentage !== undefined && (
+              <div className="positive-rating">
+                <span className="positive-percentage">{ratingDetails.positivePercentage}%</span> of readers liked this book
+              </div>
+            )}
           </div>
           
           <div className="book-metadata">

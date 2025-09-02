@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Book } from '../../services/bookService';
+import StarRating from '../ui/StarRating';
 
 // Default placeholder book cover
 const PLACEHOLDER_COVER = 'https://via.placeholder.com/150x225?text=No+Cover';
@@ -41,12 +42,14 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
             <p className="book-author">by {book.author}</p>
             
             <div className="book-rating">
-              <span className="rating-stars">
-                {'★'.repeat(Math.round(book.averageRating))}
-                {'☆'.repeat(5 - Math.round(book.averageRating))}
-              </span>
+              <StarRating 
+                rating={book.averageRating} 
+                readOnly={true} 
+                size="small" 
+                precision="half"
+              />
               <span className="rating-value">{book.averageRating.toFixed(1)}</span>
-              <span className="review-count">({book.reviewCount} reviews)</span>
+              <span className="review-count">({book.reviewCount} {book.reviewCount === 1 ? 'review' : 'reviews'})</span>
             </div>
             
             <p className="book-description">{descriptionPreview}</p>

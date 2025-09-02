@@ -1,0 +1,126 @@
+/* Star Rating Component */
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-rating .star {
+  color: #ffb400;
+  user-select: none;
+}
+
+.star-rating .star.empty {
+  color: #ccc;
+}
+
+.star-rating .star.partial {
+  position: relative;
+}
+
+.rating-number {
+  margin-left: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Star sizes */
+.star-small .star {
+  font-size: 1rem;
+}
+
+.star-medium .star {
+  font-size: 1.25rem;
+}
+
+.star-large .star {
+  font-size: 1.75rem;
+}
+
+/* Rating Summary Component */
+.rating-summary {
+  margin-bottom: 20px;
+}
+
+.rating-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.rating-meta {
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rating-average {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.rating-count {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Rating Distribution */
+.rating-distribution {
+  margin-top: 15px;
+}
+
+.distribution-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.star-label {
+  width: 15px;
+  text-align: right;
+  margin-right: 8px;
+}
+
+.bar-container {
+  flex-grow: 1;
+  height: 12px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  margin: 0 10px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background-color: #ffb400;
+  border-radius: 6px;
+}
+
+.count {
+  width: 25px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Book Details Rating Section */
+.book-rating-section {
+  margin: 20px 0;
+}
+
+.positive-rating {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.positive-percentage {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.rating-loading {
+  font-style: italic;
+  color: #999;
+}

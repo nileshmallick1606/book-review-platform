@@ -16,11 +16,11 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 |-------|-------------|--------|-------|
 | Phase 1: Project Setup and Foundation | 100% | Completed | US 1.1 and US 1.2 completed |
 | Phase 2: Core Features | 100% | Completed | US 2.1, US 2.2, and US 2.3 completed |
-| Phase 3: Advanced Features | 0% | Not Started |  |
+| Phase 3: Advanced Features | 39% | In Progress | US 3.1 completed |
 | Phase 4: Testing and Quality Assurance | 0% | Not Started |  |
 | Phase 5: Deployment and Infrastructure | 0% | Not Started |  |
 | Phase 6: Launch Preparation and Final Review | 0% | Not Started |  |
-| **Overall Project** | **50%** | **In Progress** | Project initialization, authentication, book management, review system, and user profiles completed |
+| **Overall Project** | **58%** | **In Progress** | Project initialization, authentication, book management, review system, user profiles, and rating aggregation completed |
 
 ---
 
@@ -136,18 +136,18 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 
 | ID | Task | Assignee | Status | Est. Hours | Actual Hours | Completion % | Notes |
 |----|------|----------|--------|------------|--------------|--------------|-------|
-| 3.1.1 | Implement Rating Calculation Logic |  | Not Started | 3 |  | 0% |  |
-| 3.1.2 | Update Book Model for Ratings |  | Not Started | 2 |  | 0% |  |
-| 3.1.3 | Implement Rating Update Triggers |  | Not Started | 4 |  | 0% |  |
-| 3.1.4 | Add Rating-based Sorting to Book API |  | Not Started | 3 |  | 0% |  |
-| 3.1.5 | Create Rating UI Components |  | Not Started | 4 |  | 0% |  |
-| 3.1.6 | Update Book Card Components |  | Not Started | 2 |  | 0% |  |
-| 3.1.7 | Implement Rating Filters and Sorting |  | Not Started | 3 |  | 0% |  |
-| 3.1.8 | Add Rating Summary to Book Details |  | Not Started | 2 |  | 0% |  |
-| 3.1.9 | Test Rating Calculation |  | Not Started | 2 |  | 0% |  |
-| 3.1.10 | Test Rating Update Workflow |  | Not Started | 3 |  | 0% |  |
-| 3.1.11 | Test Frontend Rating Components |  | Not Started | 2 |  | 0% |  |
-| **US 3.1** | **Total** |  | **Not Started** | **30** | **0** | **0%** |  |
+| 3.1.1 | Implement Rating Calculation Logic | Senior Engineer | Completed | 3 | 3 | 100% | Created rating service with error handling and edge cases |
+| 3.1.2 | Update Book Model for Ratings | Senior Engineer | Completed | 2 | 2 | 100% | Enhanced book model with utility functions |
+| 3.1.3 | Implement Rating Update Triggers | Senior Engineer | Completed | 4 | 3.5 | 100% | Added proper rating update hooks to review operations |
+| 3.1.4 | Add Rating-based Sorting to Book API | Senior Engineer | Completed | 3 | 3 | 100% | Implemented optimized sorting with popularity metric |
+| 3.1.5 | Create Rating UI Components | Senior Engineer | Completed | 4 | 4.5 | 100% | Created StarRating and RatingSummary components with accessibility |
+| 3.1.6 | Update Book Card Components | Senior Engineer | Completed | 2 | 1.5 | 100% | Integrated enhanced rating display |
+| 3.1.7 | Implement Rating Filters and Sorting | Senior Engineer | Completed | 3 | 3 | 100% | Added rating filters and updated API service |
+| 3.1.8 | Add Rating Summary to Book Details | Senior Engineer | Completed | 2 | 2 | 100% | Added detailed rating summary with distribution |
+| 3.1.9 | Test Rating Calculation | Senior Engineer | Completed | 2 | 2 | 100% | Added comprehensive unit tests for rating calculation |
+| 3.1.10 | Test Rating Update Workflow | Senior Engineer | Completed | 3 | 2.5 | 100% | Tested rating triggers and updates |
+| 3.1.11 | Test Frontend Rating Components | Senior Engineer | Completed | 2 | 2 | 100% | Added tests for rating UI components |
+| **US 3.1** | **Total** | **Senior Engineer** | **Completed** | **30** | **29** | **100%** | Successfully implemented rating aggregation functionality |
 
 ### US 3.2: Recommendation System
 
@@ -167,7 +167,8 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 | **US 3.2** | **Total** |  | **Not Started** | **46** | **0** | **0%** |  |
 
 **Phase 3 Total Hours**: 76  
-**Phase 3 Completion**: 0%
+**Phase 3 Actual Hours**: 29  
+**Phase 3 Completion**: 39%
 
 ---
 

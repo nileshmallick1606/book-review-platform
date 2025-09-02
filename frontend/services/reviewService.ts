@@ -57,9 +57,16 @@ const reviewService = {
    * Create a new review for a book
    * @param {string} bookId - Book ID to review
    * @param {object} reviewData - Review data (text, rating)
-   * @returns {Promise<Object>} - Created review
+   * @returns {Promise<Object>} - Created review with updated book rating
    */
-  async createReview(bookId: string, reviewData: { text: string; rating: number }): Promise<{ review: Review; message: string }> {
+  async createReview(bookId: string, reviewData: { text: string; rating: number }): Promise<{ 
+    review: Review; 
+    message: string;
+    bookRating?: {
+      averageRating: number;
+      reviewCount: number;
+    } 
+  }> {
     try {
       const response = await api.post(`/books/${bookId}/reviews`, reviewData);
       return response.data;
@@ -73,9 +80,16 @@ const reviewService = {
    * Update an existing review
    * @param {string} reviewId - Review ID to update
    * @param {object} reviewData - Updated review data (text, rating)
-   * @returns {Promise<Object>} - Updated review
+   * @returns {Promise<Object>} - Updated review with updated book rating
    */
-  async updateReview(reviewId: string, reviewData: { text: string; rating: number }): Promise<{ review: Review; message: string }> {
+  async updateReview(reviewId: string, reviewData: { text: string; rating: number }): Promise<{ 
+    review: Review; 
+    message: string;
+    bookRating?: {
+      averageRating: number;
+      reviewCount: number;
+    } 
+  }> {
     try {
       const response = await api.put(`/reviews/${reviewId}`, reviewData);
       return response.data;
@@ -88,9 +102,15 @@ const reviewService = {
   /**
    * Delete a review
    * @param {string} reviewId - Review ID to delete
-   * @returns {Promise<Object>} - Success message
+   * @returns {Promise<Object>} - Success message with updated book rating
    */
-  async deleteReview(reviewId: string): Promise<{ message: string }> {
+  async deleteReview(reviewId: string): Promise<{ 
+    message: string;
+    bookRating?: {
+      averageRating: number;
+      reviewCount: number;
+    } 
+  }> {
     try {
       const response = await api.delete(`/reviews/${reviewId}`);
       return response.data;

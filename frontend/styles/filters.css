@@ -1,0 +1,57 @@
+/* Rating Filter Component */
+.rating-filter {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+}
+
+.filter-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clear-filter-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.clear-filter-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* Sort controls */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.sort-label {
+  font-weight: 500;
+}
+
+.sort-select {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.filter-controls {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 15px;
+}

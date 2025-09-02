@@ -9,7 +9,14 @@ class BookModel extends BaseModel {
   async search(query, options = {}) {
     const books = await this.findAll();
     const searchTerm = query.toLowerCase();
-    const { genre, yearFrom, yearTo, minRating } = options;
+    const { 
+      genre, 
+      yearFrom, 
+      yearTo, 
+      minRating, 
+      maxRating, 
+      hasReviews 
+    } = options;
     
     return books.filter(book => {
       // Basic title/author search
@@ -23,6 +30,9 @@ class BookModel extends BaseModel {
       if (yearFrom && book.publishedYear < yearFrom) return false;
       if (yearTo && book.publishedYear > yearTo) return false;
       if (minRating && book.averageRating < minRating) return false;
+      if (maxRating && book.averageRating > maxRating) return false;
+      if (hasReviews === true && book.reviewCount === 0) return false;
+      if (hasReviews === false && book.reviewCount > 0) return false;
       
       return true;
     });
@@ -58,16 +68,36 @@ class BookModel extends BaseModel {
   // Sort books by the given field and order
   sortBooks(books, sortBy = 'title', sortOrder = 'asc') {
     // Validate sortBy parameter to prevent errors
-    const validSortFields = ['title', 'author', 'publishedYear', 'averageRating', 'reviewCount'];
+    const validSortFields = ['title', 'author', 'publishedYear', 'averageRating', 'reviewCount', 'popularity'];
     const field = validSortFields.includes(sortBy) ? sortBy : 'title';
     
     return [...books].sort((a, b) => {
       let comparison = 0;
       
+      // Special case for popularity (combination of rating and review count)
+      if (field === 'popularity') {
+        // Calculate popularity score: average rating * ln(1 + reviewCount)
+        // This gives weight to both rating and number of reviews
+        const scoreA = a.averageRating * Math.log(1 + a.reviewCount);
+        const scoreB = b.averageRating * Math.log(1 + b.reviewCount);
+        comparison = scoreA - scoreB;
+      }
       // Handle strings case-insensitively
-      if (typeof a[field] === 'string') {
+      else if (typeof a[field] === 'string') {
         comparison = a[field].toLowerCase().localeCompare(b[field].toLowerCase());
-      } else {
+      } 
+      // Special handling for averageRating to account for books with no reviews
+      else if (field === 'averageRating') {
+        // Books with reviews should rank higher than books with no reviews
+        if (a.reviewCount === 0 && b.reviewCount > 0) {
+          comparison = -1;
+        } else if (a.reviewCount > 0 && b.reviewCount === 0) {
+          comparison = 1;
+        } else {
+          comparison = a[field] - b[field];
+        }
+      }
+      else {
         // Handle numbers
         comparison = a[field] - b[field];
       }
@@ -79,45 +109,95 @@ class BookModel extends BaseModel {
 
   // Update book ratings based on actual reviews data
   async updateBookRatings(bookId) {
-    const reviewModel = require('./review.model');
-    const bookReviews = await reviewModel.findByBookId(bookId);
-    
-    // Get the book
-    const book = await this.findById(bookId);
-    if (!book) return false;
-    
-    // Calculate average rating and review count
-    const reviewCount = bookReviews.length;
-    const averageRating = reviewCount > 0 
-      ? bookReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount
-      : 0;
-    
-    // Round average rating to 1 decimal place
-    const roundedRating = Math.round(averageRating * 10) / 10;
-    
-    // Update book with calculated values
-    await this.update(bookId, {
-      reviewCount,
-      averageRating: roundedRating
-    });
-    
-    return true;
+    try {
+      const reviewModel = require('./review.model');
+      const ratingService = require('../services/rating.service');
+      
+      // Get the book
+      const book = await this.findById(bookId);
+      if (!book) {
+        console.error(`Book not found with ID: ${bookId}`);
+        return { success: false, message: 'Book not found' };
+      }
+      
+      // Get reviews for this book
+      const reviewResult = await reviewModel.findByBookId(bookId);
+      const bookReviews = reviewResult.reviews || [];
+      
+      // Calculate ratings using the specialized service
+      const { averageRating, reviewCount } = ratingService.calculateAverageRating(bookReviews);
+      
+      // Update book with calculated values
+      await this.update(bookId, {
+        reviewCount,
+        averageRating
+      });
+      
+      return { 
+        success: true, 
+        reviewCount, 
+        averageRating,
+        bookId
+      };
+    } catch (error) {
+      console.error(`Error updating ratings for book ${bookId}:`, error);
+      return { 
+        success: false, 
+        message: error.message || 'Error updating book ratings'
+      };
+    }
   }
 
   // Update ratings for all books
   async updateAllBookRatings() {
     try {
       const books = await this.findAll();
+      const results = {
+        success: true,
+        processed: 0,
+        failed: 0,
+        books: []
+      };
       
       // Process each book
       for (const book of books) {
-        await this.updateBookRatings(book.id);
+        const result = await this.updateBookRatings(book.id);
+        
+        if (result.success) {
+          results.processed++;
+          results.books.push({
+            id: book.id,
+            title: book.title,
+            success: true,
+            averageRating: result.averageRating,
+            reviewCount: result.reviewCount
+          });
+        } else {
+          results.failed++;
+          results.books.push({
+            id: book.id,
+            title: book.title,
+            success: false,
+            error: result.message
+          });
+        }
       }
       
-      return true;
+      // Set overall success based on if any books failed
+      if (results.failed > 0) {
+        results.success = false;
+      }
+      
+      return results;
     } catch (error) {
       console.error('Error updating all book ratings:', error);
-      return false;
+      return {
+        success: false,
+        message: error.message || 'Error updating all book ratings',
+        processed: 0,
+        failed: 0,
+        books: []
+      };
     }
   }
 }

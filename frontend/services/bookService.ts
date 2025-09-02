@@ -23,6 +23,8 @@ export interface BookSearchFilters {
   yearFrom?: number;
   yearTo?: number;
   minRating?: number;
+  maxRating?: number;
+  hasReviews?: boolean;
 }
 
 /**
@@ -31,17 +33,24 @@ export interface BookSearchFilters {
  */
 const bookService = {
   /**
-   * Get paginated list of books with optional sorting
+   * Get paginated list of books with optional sorting and filtering
    * @param {number} page - Page number (1-based)
    * @param {number} limit - Number of books per page
-   * @param {string} sortBy - Field to sort by (title, author, publishedYear, averageRating)
+   * @param {string} sortBy - Field to sort by (title, author, publishedYear, averageRating, popularity)
    * @param {string} sortOrder - Sort order (asc or desc)
+   * @param {number} minRating - Minimum rating filter (1-5)
    * @returns {Promise<Object>} - Paginated books response
    */
-  async getBooks(page = 1, limit = 10, sortBy = 'title', sortOrder = 'asc') {
+  async getBooks(page = 1, limit = 10, sortBy = 'title', sortOrder = 'asc', minRating?: number) {
     try {
       const response = await api.get('/books', {
-        params: { page, limit, sortBy, sortOrder }
+        params: { 
+          page, 
+          limit, 
+          sortBy, 
+          sortOrder,
+          minRating
+        }
       });
       return response.data;
     } catch (error) {
@@ -85,6 +94,22 @@ const bookService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching book with ID ${id}:`, error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Get detailed rating information for a book
+   * 
+   * @param {string} id - Book ID
+   * @returns {Promise<Object>} - Rating details including distribution
+   */
+  async getBookRatingDetails(id: string) {
+    try {
+      const response = await api.get(`/books/${id}/ratings`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching rating details for book ${id}:`, error);
       throw error;
     }
   }

@@ -66,11 +66,19 @@ const createReview = async (req, res, next) => {
     });
     
     // Update book rating
-    await bookModel.updateBookRatings(bookId);
+    const ratingResult = await bookModel.updateBookRatings(bookId);
+    
+    if (!ratingResult.success) {
+      console.warn(`Warning: Failed to update ratings for book ${bookId}`);
+    }
     
     res.status(201).json({
       message: 'Review created successfully',
-      review
+      review,
+      bookRating: {
+        averageRating: ratingResult.averageRating,
+        reviewCount: ratingResult.reviewCount
+      }
     });
   } catch (error) {
     next(error);
@@ -117,11 +125,19 @@ const updateReview = async (req, res, next) => {
     });
     
     // Update book rating
-    await bookModel.updateBookRatings(review.bookId);
+    const ratingResult = await bookModel.updateBookRatings(review.bookId);
+    
+    if (!ratingResult.success) {
+      console.warn(`Warning: Failed to update ratings for book ${review.bookId}`);
+    }
     
     res.status(200).json({
       message: 'Review updated successfully',
-      review: updatedReview
+      review: updatedReview,
+      bookRating: {
+        averageRating: ratingResult.averageRating,
+        reviewCount: ratingResult.reviewCount
+      }
     });
   } catch (error) {
     next(error);
@@ -156,10 +172,18 @@ const deleteReview = async (req, res, next) => {
     }
     
     // Update book rating
-    await bookModel.updateBookRatings(bookId);
+    const ratingResult = await bookModel.updateBookRatings(bookId);
+    
+    if (!ratingResult.success) {
+      console.warn(`Warning: Failed to update ratings for book ${bookId}`);
+    }
     
     res.status(200).json({
-      message: 'Review deleted successfully'
+      message: 'Review deleted successfully',
+      bookRating: {
+        averageRating: ratingResult.averageRating,
+        reviewCount: ratingResult.reviewCount
+      }
     });
   } catch (error) {
     next(error);

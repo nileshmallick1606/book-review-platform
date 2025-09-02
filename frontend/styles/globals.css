@@ -20,3 +20,5 @@ a {
 @import './auth.css';
 @import './books.css';
 @import './reviews.css';
+@import './ratings.css';
+@import './filters.css';

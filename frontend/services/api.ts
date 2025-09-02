@@ -12,7 +12,11 @@ const api = axios.create({
 // Add request interceptor for auth token
 api.interceptors.request.use(
   (config) => {
-    // You can add auth token here if needed
+    // Add auth token from localStorage if it exists
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -28,8 +32,14 @@ api.interceptors.response.use(
   (error) => {
     // Handle common errors or redirect on 401
     if (error.response && error.response.status === 401) {
-      // Handle unauthorized access
-      // Redirect to login page or refresh token
+      // Clear token and redirect to login page
+      localStorage.removeItem('token');
+      
+      // Check if window is defined (browser environment)
+      if (typeof window !== 'undefined') {
+        // Redirect to login page
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(error);
   }

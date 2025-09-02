@@ -5,10 +5,19 @@ const bookModel = require('../models/book.model');
 const getBookReviews = async (req, res, next) => {
   try {
     const bookId = req.params.bookId;
+    const { page, limit, sortBy, sortOrder } = req.query;
     
-    const reviews = await reviewModel.findByBookId(bookId);
+    // Parse pagination and sorting options
+    const options = {
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 10,
+      sortBy: sortBy || 'timestamp',
+      sortOrder: sortOrder || 'desc'
+    };
     
-    res.status(200).json({ reviews });
+    const result = await reviewModel.findByBookIdWithUserInfo(bookId, options);
+    
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -21,8 +30,18 @@ const createReview = async (req, res, next) => {
     const userId = req.user.id;
     const { text, rating } = req.body;
     
+    // Validate required fields
+    if (!text || text.trim() === '') {
+      return res.status(400).json({ message: 'Review text is required' });
+    }
+    
     // Validate rating
-    if (rating < 1 || rating > 5) {
+    if (!rating) {
+      return res.status(400).json({ message: 'Rating is required' });
+    }
+    
+    const ratingNum = Number(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
       return res.status(400).json({ message: 'Rating must be between 1 and 5' });
     }
     
@@ -43,10 +62,10 @@ const createReview = async (req, res, next) => {
       bookId,
       userId,
       text,
-      rating
+      rating: ratingNum
     });
     
-    // Update book rating (in real implementation)
+    // Update book rating
     await bookModel.updateBookRatings(bookId);
     
     res.status(201).json({
@@ -65,8 +84,18 @@ const updateReview = async (req, res, next) => {
     const userId = req.user.id;
     const { text, rating } = req.body;
     
+    // Validate required fields
+    if (!text || text.trim() === '') {
+      return res.status(400).json({ message: 'Review text is required' });
+    }
+    
     // Validate rating
-    if (rating < 1 || rating > 5) {
+    if (!rating) {
+      return res.status(400).json({ message: 'Rating is required' });
+    }
+    
+    const ratingNum = Number(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
       return res.status(400).json({ message: 'Rating must be between 1 and 5' });
     }
     
@@ -84,10 +113,10 @@ const updateReview = async (req, res, next) => {
     // Update review
     const updatedReview = await reviewModel.update(reviewId, {
       text,
-      rating
+      rating: ratingNum
     });
     
-    // Update book rating (in real implementation)
+    // Update book rating
     await bookModel.updateBookRatings(review.bookId);
     
     res.status(200).json({
@@ -116,11 +145,18 @@ const deleteReview = async (req, res, next) => {
       return res.status(403).json({ message: 'You can only delete your own reviews' });
     }
     
-    // Delete the review
-    await reviewModel.delete(reviewId);
+    // Store bookId before deletion to update ratings
+    const bookId = review.bookId;
     
-    // Update book rating (in real implementation)
-    await bookModel.updateBookRatings(review.bookId);
+    // Delete the review
+    const deleted = await reviewModel.delete(reviewId);
+    
+    if (!deleted) {
+      return res.status(500).json({ message: 'Failed to delete review' });
+    }
+    
+    // Update book rating
+    await bookModel.updateBookRatings(bookId);
     
     res.status(200).json({
       message: 'Review deleted successfully'
@@ -134,10 +170,19 @@ const deleteReview = async (req, res, next) => {
 const getUserReviews = async (req, res, next) => {
   try {
     const userId = req.params.id;
+    const { page, limit, sortBy, sortOrder } = req.query;
     
-    const reviews = await reviewModel.findByUserId(userId);
+    // Parse pagination and sorting options
+    const options = {
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 10,
+      sortBy: sortBy || 'timestamp',
+      sortOrder: sortOrder || 'desc'
+    };
     
-    res.status(200).json({ reviews });
+    const result = await reviewModel.findByUserId(userId, options);
+    
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

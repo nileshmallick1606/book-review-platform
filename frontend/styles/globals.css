@@ -18,3 +18,5 @@ a {
 
 /* Import component styles */
 @import './auth.css';
+@import './books.css';
+@import './reviews.css';

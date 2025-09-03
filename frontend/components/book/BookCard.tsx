@@ -15,6 +15,7 @@ interface BookCardProps {
   isFavorite?: boolean;
   onFavoriteToggle?: (bookId: string, isFavorite: boolean) => void;
   inFavoritesTab?: boolean;
+  className?: string; // To allow additional CSS classes
 }
 
 /**
@@ -25,10 +26,12 @@ const BookCard: React.FC<BookCardProps> = ({
   book, 
   isFavorite = false, 
   onFavoriteToggle,
-  inFavoritesTab = false 
+  inFavoritesTab = false,
+  className = ''
 }) => {
   const [favorite, setFavorite] = useState(isFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { isAuthenticated } = useAuth();
   
   // Update internal state when parent props change
@@ -36,10 +39,15 @@ const BookCard: React.FC<BookCardProps> = ({
     setFavorite(isFavorite);
   }, [isFavorite]);
 
+  // Handle image error
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   // Limit description to a reasonable preview length
-  const descriptionPreview = book.description.length > 100
+  const descriptionPreview = book.description?.length > 100
     ? `${book.description.substring(0, 100)}...`
-    : book.description;
+    : book.description || '';
   
   // Handle favorite toggle
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
@@ -88,18 +96,22 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
     
+  // Use cover image if available and not in error state, otherwise use placeholder
+  const imageSrc = !imageError && book.coverImage ? book.coverImage : PLACEHOLDER_COVER;
+    
   return (
-    <div className="book-card">
+    <div className={`book-card ${className}`}>
       <Link href={`/books/${book.id}`} legacyBehavior>
         <a className="book-card-link">
           <div className="book-card-image">
             <Image
-              src={book.coverImage || PLACEHOLDER_COVER}
+              src={imageSrc}
               alt={`Cover for ${book.title}`}
               width={150}
               height={225}
               style={{ objectFit: 'cover' }}
               unoptimized={book.coverImage?.startsWith('http')}
+              onError={handleImageError}
             />
             {isAuthenticated && (
               <button 
@@ -142,10 +154,10 @@ const BookCard: React.FC<BookCardProps> = ({
             <p className="book-description">{descriptionPreview}</p>
             
             <div className="book-genres">
-              {book.genres.slice(0, 3).map(genre => (
+              {book.genres && book.genres.slice(0, 3).map(genre => (
                 <span key={genre} className="genre-tag">{genre}</span>
               ))}
-              {book.genres.length > 3 && (
+              {book.genres && book.genres.length > 3 && (
                 <span className="genre-more">+{book.genres.length - 3}</span>
               )}
             </div>

@@ -148,7 +148,9 @@ const RecommendationList: React.FC<RecommendationListProps> = ({
             {filteredRecommendations.map(recommendation => (
               <RecommendationCard 
                 key={recommendation.id} 
-                recommendation={recommendation} 
+                recommendation={recommendation}
+                // We're not handling favorites in the recommendation list
+                // but the component now supports it if needed in the future
               />
             ))}
           </div>

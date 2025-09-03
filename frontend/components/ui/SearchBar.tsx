@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { BookSearchFilters } from '../../services/bookService';
 
 // Props interface for SearchBar
@@ -11,7 +11,7 @@ interface SearchBarProps {
 
 /**
  * SearchBar component for searching books
- * Includes debouncing for efficient API calls
+ * Searches only when submit button is clicked or Enter key is pressed
  */
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
@@ -24,29 +24,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [filters, setFilters] = useState<BookSearchFilters>(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
   
-  // Debounce search to avoid excessive API calls
-  const debouncedSearch = useCallback(
-    (() => {
-      let timeout: NodeJS.Timeout;
-      
-      return (searchQuery: string, searchFilters: BookSearchFilters) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          if (searchQuery.trim()) {
-            onSearch(searchQuery, searchFilters);
-          }
-        }, 500); // 500ms delay
-      };
-    })(),
-    [onSearch]
-  );
+  // Execute search
+  const executeSearch = useCallback(() => {
+    // Always call onSearch, even with empty query
+    // This will allow the parent component to handle empty searches
+    onSearch(query, filters);
+  }, [query, filters, onSearch]);
   
-  // Trigger search when query or filters change
-  useEffect(() => {
-    if (query.trim()) {
-      debouncedSearch(query, filters);
+  // Handle search form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    executeSearch();
+  };
+  
+  // Handle key press - search on Enter
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      executeSearch();
     }
-  }, [query, filters, debouncedSearch]);
+  };
   
   // Handle input change
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,47 +58,76 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }));
   };
   
-  // Clear search
-  const handleClear = () => {
+  // Clear search input only (doesn't submit)
+  const handleClearInput = () => {
+    setQuery('');
+  };
+  
+  // Clear search completely and reload results
+  const handleClearSearch = () => {
     setQuery('');
     setFilters({});
+    // Pass empty strings to properly reset the search state in parent component
     onSearch('', {});
   };
   
   return (
     <div className="search-container">
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search books by title or author..."
-          value={query}
-          onChange={handleQueryChange}
-          disabled={isLoading}
-        />
-        
-        {query && (
-          <button 
-            className="search-clear-button"
-            onClick={handleClear}
+      <form onSubmit={handleSubmit} className="search-form">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search books by title or author..."
+            value={query}
+            onChange={handleQueryChange}
+            onKeyPress={handleKeyPress}
             disabled={isLoading}
-            aria-label="Clear search"
+          />
+          
+          {query && (
+            <button 
+              type="button"
+              className="search-clear-button"
+              onClick={handleClearInput}
+              disabled={isLoading}
+              aria-label="Clear search input"
+            >
+              &times;
+            </button>
+          )}
+          
+          <button
+            type="submit"
+            className="search-submit-button"
+            disabled={isLoading}
           >
-            &times;
+            Search
           </button>
-        )}
-        
-        <button 
-          className={`search-filter-button ${showFilters ? 'active' : ''}`}
-          onClick={() => setShowFilters(!showFilters)}
-          disabled={isLoading}
-          aria-label="Toggle filters"
-          aria-expanded={showFilters}
-        >
-          <span>Filter</span>
-          <span className="filter-icon">{showFilters ? '▲' : '▼'}</span>
-        </button>
-      </div>
+          
+          <button
+            type="button"
+            className="search-reset-button"
+            onClick={handleClearSearch}
+            disabled={isLoading}
+            aria-label="Clear search and reload"
+          >
+            Reset
+          </button>
+          
+          <button 
+            type="button"
+            className={`search-filter-button ${showFilters ? 'active' : ''}`}
+            onClick={() => setShowFilters(!showFilters)}
+            disabled={isLoading}
+            aria-label="Toggle filters"
+            aria-expanded={showFilters}
+          >
+            <span>Filter</span>
+            <span className="filter-icon">{showFilters ? '▲' : '▼'}</span>
+          </button>
+        </div>
+      </form>
       
       {showFilters && (
         <div className="search-filters">

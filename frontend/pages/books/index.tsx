@@ -107,8 +107,27 @@ const BooksIndexPage: React.FC = () => {
   
   // Handle search
   const handleSearch = (query: string, filters: BookSearchFilters) => {
+    // If the query is empty, reset everything and reload the page
+    if (!query || query.trim() === '') {
+      // Reset search state
+      setSearchQuery('');
+      setSearchFilters({});
+      setIsSearching(false);
+      
+      // Reset pagination to first page
+      setPagination({
+        ...pagination,
+        page: 1
+      });
+      
+      // Force a reload of books without search filters
+      return;
+    }
+    
+    // Otherwise proceed with search
     setSearchQuery(query);
     setSearchFilters(filters);
+    
     // Reset to first page when searching
     setPagination({
       ...pagination,
@@ -186,7 +205,7 @@ const BooksIndexPage: React.FC = () => {
             </div>
           )}
           
-          {searchQuery && (
+          {searchQuery && searchQuery.trim() !== '' && (
             <div className="results-info">
               Found {pagination.totalBooks} 
               {pagination.totalBooks === 1 ? ' book' : ' books'} 

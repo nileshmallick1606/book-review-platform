@@ -83,12 +83,12 @@ This tracking sheet provides a comprehensive view of all user stories and techni
 | 2.1.3 | Implement Book Search API | Senior Engineer | Completed | 3 | 3 | 100% | Implemented search with filters for genre, year, and rating |
 | 2.1.4 | Implement Book Details API | Senior Engineer | Completed | 2 | 2 | 100% | Added support for optional related data inclusion |
 | 2.1.5 | Create Book Listing Page | Senior Engineer | Completed | 5 | 5 | 100% | Implemented responsive book listing with grid/list views |
-| 2.1.6 | Implement Book Search Component | Senior Engineer | Completed | 4 | 4 | 100% | Created search with debouncing and advanced filtering options |
+| 2.1.6 | Implement Book Search Component | Senior Engineer | Completed | 4 | 6 | 100% | Modified search to use button/Enter key instead of auto-search, added dedicated reset button, fixed search result text display issues, improved empty search handling |
 | 2.1.7 | Create Book Details Page | Senior Engineer | Completed | 5 | 5 | 100% | Created detailed book view with metadata and responsive design |
 | 2.1.8 | Implement API Service for Books | Senior Engineer | Completed | 2 | 2 | 100% | Created TypeScript service with proper typing and error handling |
-| 2.1.9 | Test Book APIs | Senior Engineer | Completed | 3 | 3 | 100% | Wrote comprehensive tests for book model and controllers |
+| 2.1.9 | Test Book APIs | Senior Engineer | Completed | 3 | 4 | 100% | Enhanced test suite with comprehensive coverage (>90%) for book search, ratings, and recalculation endpoints |
 | 2.1.10 | Test Frontend Book Components | Senior Engineer | Completed | 3 | 3 | 100% | Created unit tests for book components and pages |
-| **US 2.1** | **Total** | **Senior Engineer** | **Completed** | **35** | **35** | **100%** | Successfully implemented book management functionality |
+| **US 2.1** | **Total** | **Senior Engineer** | **Completed** | **35** | **38** | **100%** | Successfully implemented book management functionality with improved search UX, reset functionality, and comprehensive test coverage |
 
 ### US 2.2: Review System
 

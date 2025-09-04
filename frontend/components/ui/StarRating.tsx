@@ -85,13 +85,14 @@ const StarRating: React.FC<StarRatingProps> = ({
           onMouseLeave={() => !readOnly && setHoverRating(0)}
           style={{ cursor: readOnly ? 'default' : 'pointer' }}
           title={`${position} ${position === 1 ? 'star' : 'stars'}`}
+          data-testid={`star-${position}`}
         >
           {/* Show appropriate star based on rating */}
           {getStarIcon(position, hoverRating || rating)}
         </span>
       ))}
       {(showText || !readOnly) && (
-        <span className="rating-number" aria-hidden="true">{(hoverRating || rating || 0).toFixed(1)}/{maxRating}</span>
+        <span className="rating-number" aria-hidden="true" data-testid="rating-text">{(hoverRating || rating || 0).toFixed(1)}/{maxRating}</span>
       )}
     </div>
   );

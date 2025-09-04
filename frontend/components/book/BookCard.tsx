@@ -120,6 +120,7 @@ const BookCard: React.FC<BookCardProps> = ({
                 disabled={isProcessing}
                 title={inFavoritesTab || favorite ? 'Remove from favorites' : 'Add to favorites'}
                 aria-label={inFavoritesTab || favorite ? 'Remove from favorites' : 'Add to favorites'}
+                data-testid={`favorite-button-${book.id}`}
               >
                 {inFavoritesTab && (
                   <span className="remove-label">Remove</span>

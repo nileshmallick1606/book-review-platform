@@ -21,7 +21,7 @@ const getRecommendations = async (req, res, next) => {
     const { limit = 5, genre = null, refresh = false } = req.query;
     
     // Get recommendations
-    const recommendations = await recommendationService.getRecommendationsForUser(
+    let recommendations = await recommendationService.getRecommendationsForUser(
       userId, 
       {
         limit: parseInt(limit),
@@ -30,7 +30,15 @@ const getRecommendations = async (req, res, next) => {
       }
     );
     
-    // Return recommendations
+    // If no personalized recommendations, get default recommendations
+    if (!recommendations || recommendations.length === 0) {
+      recommendations = await recommendationService.getDefaultRecommendations(
+        parseInt(limit), 
+        genre
+      );
+    }
+    
+    // Return recommendations in the format expected by tests
     res.status(200).json({
       success: true,
       count: recommendations.length,

@@ -89,6 +89,8 @@ describe('Authentication Controller', () => {
         .send({ name: 'Incomplete User' });
 
       expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error', 'Missing required fields');
+      expect(response.body).toHaveProperty('message', 'Email, password, and name are required');
     });
   });
 

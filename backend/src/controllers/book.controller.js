@@ -3,42 +3,35 @@ const bookModel = require('../models/book.model');
 // Get all books (paginated with sorting)
 const getAllBooks = async (req, res, next) => {
   try {
+    // Check for invalid pagination parameters before applying defaults
+    if (req.query.page && parseInt(req.query.page) < 1 || req.query.limit && parseInt(req.query.limit) < 1) {
+      return res.status(400).json({ 
+        message: 'Invalid pagination parameters. Page must be >= 1 and limit must be between 1 and 100.' 
+      });
+    }
+    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const sortBy = req.query.sortBy || 'title';
     const sortOrder = req.query.sortOrder || 'asc';
     const minRating = req.query.minRating ? parseFloat(req.query.minRating) : undefined;
     
-    // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 100) {
+    // Additional validation for limit > 100
+    if (limit > 100) {
       return res.status(400).json({ 
         message: 'Invalid pagination parameters. Page must be >= 1 and limit must be between 1 and 100.' 
       });
     }
     
+    // Use the model's getPaginated method
+    const result = await bookModel.getPaginated(page, limit, sortBy, sortOrder);
+    
     // Filter by minimum rating if provided
-    let books = await bookModel.findAll();
-    
     if (minRating !== undefined) {
-      books = books.filter(book => book.averageRating >= minRating);
+      result.books = result.books.filter(book => book.averageRating >= minRating);
+      result.totalBooks = result.books.length;
+      result.totalPages = Math.ceil(result.totalBooks / limit);
     }
-    
-    // Sort and paginate the filtered books
-    books = bookModel.sortBooks(books, sortBy, sortOrder);
-    const totalBooks = books.length;
-    const totalPages = Math.ceil(totalBooks / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    
-    const result = {
-      books: books.slice(startIndex, endIndex),
-      totalBooks,
-      page,
-      limit,
-      totalPages,
-      sortBy,
-      sortOrder
-    };
     
     res.status(200).json({
       ...result,
@@ -126,7 +119,9 @@ const getBookById = async (req, res, next) => {
     // Optionally include reviews if requested
     if (includeReviews) {
       const reviewModel = require('../models/review.model');
-      response.reviews = await reviewModel.findByBookId(bookId);
+      const reviewsResult = await reviewModel.findByBookId(bookId);
+      response.reviews = reviewsResult.reviews; // Extract just the array of reviews
+      response.message = "Successfully retrieved book with reviews"; // Add a message property
     }
     
     res.status(200).json(response);

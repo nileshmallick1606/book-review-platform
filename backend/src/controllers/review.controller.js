@@ -207,7 +207,16 @@ const getUserReviews = async (req, res, next) => {
     // Use the enhanced method that includes book information
     const result = await reviewModel.findByUserIdWithBookInfo(userId, options);
     
-    res.status(200).json(result);
+    // Format response to match test expectations
+    res.status(200).json({
+      reviews: result.reviews,
+      pagination: {
+        total: result.totalItems,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages
+      }
+    });
   } catch (error) {
     next(error);
   }

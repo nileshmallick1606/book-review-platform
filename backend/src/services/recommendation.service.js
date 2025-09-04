@@ -393,6 +393,17 @@ Make sure the books match the user's genre preferences and reading style. Includ
   _getCacheKey(userId, genre = null) {
     return `${userId}${genre ? '_' + genre : ''}`;
   }
+  
+  /**
+   * Public method for getting default recommendations
+   * 
+   * @param {number} limit - Number of recommendations
+   * @param {string} genre - Filter by genre
+   * @returns {Promise<Array>} Default recommendations
+   */
+  async getDefaultRecommendations(limit = 5, genre = null) {
+    return this._getDefaultRecommendations(limit, genre);
+  }
 }
 
 module.exports = new RecommendationService();

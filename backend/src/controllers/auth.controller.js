@@ -7,6 +7,14 @@ const register = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
     
+    // Validate required fields
+    if (!email || !password || !name) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'Email, password, and name are required' 
+      });
+    }
+    
     // Check if user already exists
     const existingUser = await userModel.findByEmail(email);
     if (existingUser) {
@@ -76,8 +84,16 @@ const login = async (req, res, next) => {
 // Get current user profile
 const getProfile = async (req, res, next) => {
   try {
+    // Check if req.user exists first
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    
     // User ID comes from the JWT token validation middleware
     const userId = req.user.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Invalid authentication token' });
+    }
     
     // Find user by ID
     const user = await userModel.findById(userId);
@@ -88,6 +104,7 @@ const getProfile = async (req, res, next) => {
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
     
+    // Return the user profile wrapped in a 'user' object to match test expectations
     res.status(200).json({
       user: userWithoutPassword
     });

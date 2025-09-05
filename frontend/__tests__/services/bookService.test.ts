@@ -157,7 +157,7 @@ describe('Book Service', () => {
     expect(result.distribution['5']).toBe(5);
   });
   
-  test('handles errors gracefully', async () => {
+  test('handles errors gracefully in getBookById', async () => {
     // Override server handler for one test to simulate error
     server.use(
       rest.get('*/api/books/error', (req, res, ctx) => {
@@ -174,6 +174,78 @@ describe('Book Service', () => {
     // Verify error was logged
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error fetching book with ID error:',
+      expect.any(Error)
+    );
+    
+    // Restore console.error
+    consoleErrorSpy.mockRestore();
+  });
+  
+  test('handles network errors in getBooks', async () => {
+    // Override server handler to simulate network error
+    server.use(
+      rest.get('*/api/books', (req, res) => {
+        return res.networkError('Failed to connect');
+      })
+    );
+    
+    // Spy on console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Test error handling
+    await expect(bookService.getBooks()).rejects.toThrow();
+    
+    // Verify error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error fetching books:',
+      expect.any(Error)
+    );
+    
+    // Restore console.error
+    consoleErrorSpy.mockRestore();
+  });
+  
+  test('handles errors in searchBooks', async () => {
+    // Override server handler to simulate error
+    server.use(
+      rest.get('*/api/books/search', (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({ message: 'Search error' }));
+      })
+    );
+    
+    // Spy on console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Test error handling
+    await expect(bookService.searchBooks('error')).rejects.toThrow();
+    
+    // Verify error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error searching books:',
+      expect.any(Error)
+    );
+    
+    // Restore console.error
+    consoleErrorSpy.mockRestore();
+  });
+  
+  test('handles errors in getBookRatingDetails', async () => {
+    // Override server handler to simulate error
+    server.use(
+      rest.get('*/api/books/error/ratings', (req, res, ctx) => {
+        return res(ctx.status(404), ctx.json({ message: 'Ratings not found' }));
+      })
+    );
+    
+    // Spy on console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Test error handling
+    await expect(bookService.getBookRatingDetails('error')).rejects.toThrow();
+    
+    // Verify error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error fetching rating details for book error:',
       expect.any(Error)
     );
     

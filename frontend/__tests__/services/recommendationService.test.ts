@@ -63,6 +63,37 @@ describe('Recommendation Service', () => {
     expect(result.data).toHaveLength(3);
   });
   
+  test('getRecommendations creates correct URL with default query parameters', async () => {
+    // Set up token to simulate authenticated user
+    localStorageMock.getItem.mockImplementation((key) => key === 'token' ? 'test-token' : null);
+    
+    // Spy on API calls to verify URL format
+    const apiSpy = jest.spyOn(require('../../services/api').default, 'get');
+    
+    await recommendationService.getRecommendations();
+    
+    // The default limit of 5 is applied
+    expect(apiSpy).toHaveBeenCalledWith('/recommendations?limit=5');
+    
+    apiSpy.mockRestore();
+  });
+  
+  test('getRecommendations creates URL with no query string when limit is 0', async () => {
+    // Set up token to simulate authenticated user
+    localStorageMock.getItem.mockImplementation((key) => key === 'token' ? 'test-token' : null);
+    
+    // Spy on API calls to verify URL format
+    const apiSpy = jest.spyOn(require('../../services/api').default, 'get');
+    
+    // Pass 0 as the limit which should result in no query parameters
+    await recommendationService.getRecommendations({ limit: 0 });
+    
+    // Should create a URL with no query string
+    expect(apiSpy).toHaveBeenCalledWith('/recommendations');
+    
+    apiSpy.mockRestore();
+  });
+  
   test('getRecommendations handles query parameters', async () => {
     // Setup token
     localStorageMock.getItem.mockImplementation((key) => key === 'token' ? 'test-token' : null);
@@ -135,22 +166,83 @@ describe('Recommendation Service', () => {
     consoleErrorSpy.mockRestore();
   });
   
+  test('handles response with array format instead of data object', async () => {
+    // Setup token
+    localStorageMock.getItem.mockImplementation((key) => key === 'token' ? 'test-token' : null);
+    
+    // Override to return array response format
+    server.use(
+      rest.get('*/api/recommendations', (req, res, ctx) => {
+        return res(ctx.json([
+          { 
+            id: 'array-1', 
+            title: 'Array Book', 
+            coverImage: 'https://example.com/image.jpg' 
+          },
+          { 
+            id: 'array-2', 
+            title: 'Array Book 2',
+            coverImage: 'https://invalid-domain.com/image.jpg' // Invalid URL to test normalization
+          }
+        ]));
+      })
+    );
+    
+    const result = await recommendationService.getRecommendations();
+    
+    // Should normalize the response
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(2);
+    expect(result.data).toHaveLength(2);
+    expect(result.data[0].id).toBe('array-1');
+    expect(result.data[0].coverImage).toBe('https://example.com/image.jpg');
+    expect(result.data[1].coverImage).toBeUndefined();
+  });
+  
+  test('handles empty response with no data property', async () => {
+    // Setup token
+    localStorageMock.getItem.mockImplementation((key) => key === 'token' ? 'test-token' : null);
+    
+    // Override to return empty response
+    server.use(
+      rest.get('*/api/recommendations', (req, res, ctx) => {
+        return res(ctx.json({
+          success: true,
+          message: 'No recommendations available'
+          // No data property
+        }));
+      })
+    );
+    
+    const result = await recommendationService.getRecommendations();
+    
+    // Should normalize the response
+    expect(result.success).toBe(true);
+    expect(result.count).toBe(0);
+    expect(result.data).toEqual([]);
+  });
+  
   test('validates image URLs correctly', () => {
-    // Test valid image URL
+    // Test valid image URLs for each allowed domain
     expect(recommendationService.isValidImageUrl('https://example.com/image.jpg')).toBe(true);
+    expect(recommendationService.isValidImageUrl('https://via.placeholder.com/300')).toBe(true);
+    expect(recommendationService.isValidImageUrl('https://picsum.photos/200')).toBe(true);
     
     // Test invalid image URLs
     expect(recommendationService.isValidImageUrl('')).toBe(false);
     expect(recommendationService.isValidImageUrl('not-a-url')).toBe(false);
     expect(recommendationService.isValidImageUrl('https://unknown-domain.com/image.jpg')).toBe(false);
+    
+    // Test malformed URL that throws in the URL constructor
+    expect(recommendationService.isValidImageUrl('https:///malformed')).toBe(false);
   });
   
-  test('handles and processes cached recommendations', () => {
+  test('handles and processes cached recommendations with standard structure', () => {
     const mockCachedData = [
       { id: 'cached-1', title: 'Cached Book', author: 'Cached Author' }
     ];
     
-    // Setup cache
+    // Setup cache with standard structure (data + timestamp)
     localStorageMock.getItem.mockImplementation((key) => {
       if (key === 'cachedRecommendations') {
         return JSON.stringify({
@@ -163,6 +255,67 @@ describe('Recommendation Service', () => {
     
     const cachedData = recommendationService.getCachedRecommendations();
     expect(cachedData).toEqual(mockCachedData);
+  });
+  
+  test('handles legacy cache structure', () => {
+    const mockTimestamp = Date.now() - 60000; // 1 minute ago
+    
+    // Setup cache with legacy structure (data with embedded timestamp)
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === 'cachedRecommendations') {
+        return JSON.stringify({
+          id: 'legacy-1',
+          title: 'Legacy Book',
+          author: 'Legacy Author',
+          timestamp: mockTimestamp
+        });
+      }
+      return null;
+    });
+    
+    const cachedData = recommendationService.getCachedRecommendations();
+    // Should still return data even with legacy structure
+    expect(cachedData).toEqual([]);
+  });
+  
+  test('handles invalid cache structure', () => {
+    // Setup cache with invalid structure (no timestamp)
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === 'cachedRecommendations') {
+        return JSON.stringify({
+          id: 'invalid-1',
+          title: 'Invalid Cache'
+          // No timestamp property
+        });
+      }
+      return null;
+    });
+    
+    const cachedData = recommendationService.getCachedRecommendations();
+    // Should return null for invalid structure
+    expect(cachedData).toBeNull();
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('cachedRecommendations');
+  });
+  
+  test('handles cache parse error', () => {
+    // Setup invalid JSON in cache
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === 'cachedRecommendations') {
+        return '{invalid-json';
+      }
+      return null;
+    });
+    
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Should return sample recommendations as fallback
+    const result = recommendationService.getCachedRecommendations();
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).not.toBeNull();
+    expect(result![0].title).toBe('The Great Gatsby');
+    
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('cachedRecommendations');
+    consoleErrorSpy.mockRestore();
   });
   
   test('returns null for expired cache', () => {

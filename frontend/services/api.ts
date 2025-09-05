@@ -37,8 +37,8 @@ api.interceptors.response.use(
       
       // Check if window is defined (browser environment)
       if (typeof window !== 'undefined') {
-        // Redirect to login page
-        window.location.href = '/auth/login';
+        // Redirect to login page using assign method
+        window.location.assign('/auth/login');
       }
     }
     return Promise.reject(error);

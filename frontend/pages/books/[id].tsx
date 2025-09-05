@@ -61,6 +61,13 @@ const BookDetailsPage: React.FC = () => {
   
   // Fetch book details when ID is available
   useEffect(() => {
+    // If router is ready but no ID is available, show error
+    if (router.isReady && !id) {
+      setLoading(false);
+      setError('Book ID is missing. Please check the URL.');
+      return;
+    }
+    
     // Only fetch if we have an ID and it's a string
     if (id && typeof id === 'string') {
       const fetchBookDetails = async () => {
@@ -392,17 +399,19 @@ const BookDetailsPage: React.FC = () => {
           </div>
           
           <div className="book-metadata">
-            <div className="metadata-item">
-              <span className="metadata-label">Published:</span>
-              <span className="metadata-value">{book.publishedYear}</span>
-            </div>
+            {book.publishedYear && (
+              <div className="metadata-item">
+                <span className="metadata-label">Published:</span>
+                <span className="metadata-value">{book.publishedYear}</span>
+              </div>
+            )}
             
             <div className="metadata-item">
               <span className="metadata-label">Genres:</span>
               <div className="book-genres">
-                {book.genres.map(genre => (
+                {book.genres?.map(genre => (
                   <span key={genre} className="genre-tag">{genre}</span>
-                ))}
+                )) || <span className="no-genres">Not specified</span>}
               </div>
             </div>
           </div>

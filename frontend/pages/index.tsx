@@ -107,7 +107,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container">
+  <main className="container centered-home-container">
         <h1>Welcome to BookReview Platform</h1>
         <p>Discover books, share reviews, and get personalized recommendations.</p>
         

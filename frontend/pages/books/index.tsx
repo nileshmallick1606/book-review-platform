@@ -22,7 +22,7 @@ const BooksIndexPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [pagination, setPagination] = useState<PaginationData>({
     page: 1,
-    limit: 10,
+    limit: 12,
     totalPages: 1,
     totalBooks: 0
   });

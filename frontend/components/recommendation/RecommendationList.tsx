@@ -136,6 +136,7 @@ const RecommendationList: React.FC<RecommendationListProps> = ({
       )}
       
       {/* Recommendations */}
+      
       {!isLoading && !error && filteredRecommendations.length > 0 && (
         <>
           {selectedGenre && (
@@ -143,7 +144,7 @@ const RecommendationList: React.FC<RecommendationListProps> = ({
               Showing recommendations for "{selectedGenre}" genre
             </p>
           )}
-          
+          {!isLoading && !error && console.log(`Total recommendations: ${filteredRecommendations.length}`)}
           <div className="recommendation-list__grid">
             {filteredRecommendations.map(recommendation => (
               <RecommendationCard 

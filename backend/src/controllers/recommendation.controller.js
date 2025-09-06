@@ -18,7 +18,7 @@ const getRecommendations = async (req, res, next) => {
     const userId = req.user.id;
     
     // Extract query parameters
-    const { limit = 5, genre = null, refresh = false } = req.query;
+    const { limit = 5, genre = null, refresh = true } = req.query;
     
     // Get recommendations
     let recommendations = await recommendationService.getRecommendationsForUser(

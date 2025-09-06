@@ -18,7 +18,7 @@ const UserProfile: React.FC = () => {
       setIsLoading(true);
       userService.getUserProfile(user.id)
         .then(data => {
-          setUserStats({ reviewCount: data.user.reviewCount || 0 });
+          setUserStats({ reviewCount: (data.stats && typeof data.stats.totalReviews === 'number') ? data.stats.totalReviews : 0 });
           setIsLoading(false);
         })
         .catch(error => {
@@ -118,7 +118,7 @@ const UserProfile: React.FC = () => {
                   // Refresh user data
                   userService.getUserProfile(user.id)
                     .then(data => {
-                      setUserStats({ reviewCount: data.user.reviewCount || 0 });
+                      setUserStats({ reviewCount: (data.stats && typeof data.stats.totalReviews === 'number') ? data.stats.totalReviews : 0 });
                     })
                     .catch(error => {
                       console.error('Error refreshing profile:', error);

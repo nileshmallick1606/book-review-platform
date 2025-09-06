@@ -21,7 +21,7 @@ export const recommendationService = {
     
     if (limit) queryParams.append('limit', limit.toString());
     if (genre) queryParams.append('genre', genre);
-    if (refresh) queryParams.append('refresh', 'true');
+    queryParams.append('refresh', 'true');
     
     const query = queryParams.toString();
     const url = `/recommendations${query ? '?' + query : ''}`;
@@ -31,11 +31,7 @@ export const recommendationService = {
       const token = localStorage.getItem('token');
       if (!token) {
         // Return sample recommendations if not authenticated
-        return {
-          success: true,
-          count: this.getSampleRecommendations().length,
-          data: this.getSampleRecommendations()
-        };
+        return this.getSampleRecommendationResponseData();
       }
       
       const response = await api.get(url);
@@ -64,11 +60,7 @@ export const recommendationService = {
         };
       } else if (response.data && !response.data.data) {
         // Handle empty results case explicitly
-        response.data = {
-          success: true,
-          count: 0,
-          data: []
-        };
+        return this.getSampleRecommendationResponseData();
       }
       
       return response.data;
@@ -76,13 +68,17 @@ export const recommendationService = {
       console.error('Error fetching recommendations:', error);
       
       // Instead of throwing, return sample recommendations
-      return {
-        success: true,
-        count: this.getSampleRecommendations().length,
-        data: this.getSampleRecommendations(),
-        source: 'fallback'
-      };
+      return this.getSampleRecommendationResponseData();
     }
+  },
+
+  getSampleRecommendationResponseData() {
+    return {
+          success: true,
+          count: this.getSampleRecommendations().length,
+          data: this.getSampleRecommendations()
+        };
+
   },
   
   /**

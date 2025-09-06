@@ -52,8 +52,8 @@ if (process.env.NODE_ENV !== 'test') {
     
     // Update all book ratings on server start
     try {
-      await bookModel.updateAllBookRatings();
-      console.log('All book ratings updated from reviews data');
+      //await bookModel.updateAllBookRatings();
+      //console.log('All book ratings updated from reviews data');
     } catch (error) {
       console.error('Failed to update book ratings:', error);
     }

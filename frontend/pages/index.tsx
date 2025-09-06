@@ -115,19 +115,7 @@ const Home: NextPage = () => {
           {isAuthenticated ? (
             <div>
               <p>Welcome back, {user?.name}!</p>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <Link href="/auth/profile">
-                  <span style={{ padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', borderRadius: '4px', cursor: 'pointer', display: 'inline-block' }}>
-                    View Profile
-                  </span>
-                </Link>
-                <button
-                  onClick={logout}
-                  style={{ padding: '0.5rem 1rem', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  Logout
-                </button>
-              </div>
+              {/* Removed View Profile and Logout buttons as requested */}
               
               {/* Recommendations Section */}
               <section className="recommendations-section" style={{ marginTop: '3rem' }}>

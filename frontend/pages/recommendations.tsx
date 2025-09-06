@@ -27,22 +27,9 @@ const RecommendationsPage: React.FC = () => {
   const { genre } = router.query;
   
   useEffect(() => {
-    // Fetch recommendations on page load with refresh=true to ensure fresh data
+    // Always fetch recommendations from API on page load
     fetchRecommendations(true);
-    
-    // Set up an interval to check if recommendations are loaded
-    const checkInterval = setInterval(() => {
-      if (recommendations.length === 0 && !isLoading) {
-        // If we still don't have recommendations after loading is complete,
-        // try to fetch them again or use samples
-        fetchRecommendations(true);
-      } else {
-        clearInterval(checkInterval);
-      }
-    }, 1000); // Check every second
-    
-    // Clean up interval on unmount
-    return () => clearInterval(checkInterval);
+    // No interval needed; always show all recommendations on load
   }, []);
   
   // Function to fetch recommendations
@@ -51,17 +38,7 @@ const RecommendationsPage: React.FC = () => {
     setError(null);
     
     try {
-      // Try to get from cache first if not refreshing
-      if (!refresh) {
-        const cachedData = recommendationService.getCachedRecommendations();
-        if (cachedData) {
-          // Make sure we have an array of recommendations
-          const recommendationsData = Array.isArray(cachedData) ? cachedData : [];
-          setRecommendations(recommendationsData);
-          setIsLoading(false);
-          return;
-        }
-      }
+      
       
       // Fetch from API
       const response = await recommendationService.getRecommendations({
@@ -112,12 +89,7 @@ const RecommendationsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
       
-      // After loading is complete, check if we have recommendations
-      // If not, use sample recommendations
-      if (recommendations.length === 0) {
-        const sampleRecommendations = recommendationService.getSampleRecommendations();
-        setRecommendations(sampleRecommendations);
-      }
+      
     }
   };
   
